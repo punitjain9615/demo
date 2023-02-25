@@ -1,0 +1,46 @@
+server:
+    http2:
+        enabled: true
+    port: 7001
+spring:
+    cloud:
+        function:
+            definition: tradeProducer;tradeConsumer
+        stream:
+            bindings:
+                tradeConsumer-in-0:
+                    destination: trade_sample
+#                    group: orderSync
+                tradeProducer-out-0:
+                    destination: trade_sample
+#                    producer:
+#                        partitionCount: 1
+            kafka:
+                binder:
+                    auto-create-topics: true
+                    brokers: localhost:9092
+                    replicationFactor: 1
+                bindings:
+                    tradeConsumer-in-0:
+                        destination: trade_sample
+#                        group: orderSync
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        password: jainjain
+        url: jdbc:postgresql://localhost:5433/postgres
+        username: postgres
+    jpa:
+        database: postgresql
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        generate-ddl: true
+        hibernate:
+            ddl-auto: update
+        open-in-view: false
+        properties:
+            hibernate:
+                jdbc:
+                    lob:
+                        non_contextual_creation: true
+        show-sql: true
+    profiles:
+        active: development
