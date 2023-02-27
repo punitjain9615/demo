@@ -37,7 +37,7 @@ class ExampleController() {
 
     @PostMapping("/add")
     fun createTrade(@RequestBody createTradeSample: CreateTradeSample): ResponseEntity<Any>{
-        return ResponseEntity(tradeService.createTrade(createTradeSample), HttpStatus.OK)
+        return ResponseEntity(tradeService.createTrade(createTradeSample), HttpStatus.CREATED)
     }
 
     @GetMapping("/all")
@@ -53,9 +53,7 @@ class ExampleController() {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    fun tradeById(@PathVariable id: Long): Optional<Trades> {
-        return tradeRepo.findById(id)
-    }
+    fun tradeById(@PathVariable id: Long) = tradeRepo.findById(id)
 
     @PostMapping("/consume")
     fun kafka(@RequestBody createTradeSample: CreateTradeSample): ResponseEntity<Any>{
