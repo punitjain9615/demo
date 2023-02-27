@@ -3,14 +3,15 @@ package com.example.demo.controller
 import com.example.demo.data.CreateTradeSample
 import com.example.demo.model.Trades
 import com.example.demo.repo.TradeRepo
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
 import com.example.demo.service.TradeService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.util.*
 
 @RestController
@@ -35,21 +36,13 @@ class ExampleController() {
         ResponseEntity(e.message, HttpStatus.NOT_FOUND)
 
     @PostMapping("/add")
-    @ResponseStatus(HttpStatus.OK)
-    fun send(@RequestBody trade: CreateTradeSample): CreateTradeSample{
-        var createTradeSample= CreateTradeSample(trade.orderId, trade.exchangeOrderId, trade.price,
-            trade.quantity, trade.exchangeOrderTime, trade.createdBy)
-        tradeService.createTrade(createTradeSample)
-
-
-
-        log.info(trade.orderId)
-        return trade
+    fun createTrade(@RequestBody createTradeSample: CreateTradeSample): ResponseEntity<Any>{
+        return ResponseEntity(tradeService.createTrade(createTradeSample), HttpStatus.OK)
     }
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    fun findAll()= tradeService.showTrade()
+    fun findAll()= tradeService.showTrades()
 
     @GetMapping("/page")
     @ResponseStatus(HttpStatus.OK)
@@ -62,5 +55,19 @@ class ExampleController() {
     @ResponseStatus(HttpStatus.OK)
     fun tradeById(@PathVariable id: Long): Optional<Trades> {
         return tradeRepo.findById(id)
+    }
+
+    @PostMapping("/consume")
+    fun kafka(@RequestBody createTradeSample: CreateTradeSample): ResponseEntity<Any>{
+
+        val trades = Trades(id = 0, orderId =createTradeSample.orderId, exchangeOrderId = createTradeSample.exchangeOrderId,
+            exchangeOrderTime = createTradeSample.exchangeOrderTime, price=createTradeSample.price,
+            quantity = createTradeSample.quantity, createdOn = LocalDateTime.now(),  createdBy = createTradeSample.createdBy)
+
+        log.info("Data Consume for orderId", createTradeSample.orderId)
+        tradeService.orderTradeConsumer(trades)
+        log.info("Data Saving in DataBase!")
+
+        return ResponseEntity(tradeService.createTrade(createTradeSample), HttpStatus.OK)
     }
 }

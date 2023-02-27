@@ -10,11 +10,11 @@ spring:
             bindings:
                 tradeConsumer-in-0:
                     destination: trade_sample
-#                    group: orderSync
+                    group: orderSync
                 tradeProducer-out-0:
                     destination: trade_sample
-#                    producer:
-#                        partitionCount: 1
+                    producer:
+                        partitionCount: 1
             kafka:
                 binder:
                     auto-create-topics: true
@@ -23,7 +23,7 @@ spring:
                 bindings:
                     tradeConsumer-in-0:
                         destination: trade_sample
-#                        group: orderSync
+                        group: orderSync
     datasource:
         driver-class-name: org.postgresql.Driver
         password: jainjain
